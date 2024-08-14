@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Report Card</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background: url('home.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header img {
+            max-width: 120px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            margin: 10px 0;
+            color: #2c3e50;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 18px;
+        }
+
+        .search-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box input {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        .search-box button {
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-box button:hover {
+            background-color: #2980b9;
+        }
+
+        .result-card {
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-card h2 {
+            margin: 0;
+            color: #2c3e50;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .result-card p {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .result-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .result-card table th,
+        .result-card table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .result-card table th {
+            background-color: #f4f4f4;
+            color: #2c3e50;
+        }
+
+        .result-card table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .result-card table tr:last-child {
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #e74c3c;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-box input, .search-box button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .result-card table th, .result-card table td {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header img {
+                max-width: 100px;
+            }
+
+            .search-box input, .search-box button {
+                font-size: 14px;
+            }
+
+            .result-card table th, .result-card table td {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://ssrpucpragathi.sadvidya.in/pluginfile.php/1/theme_moove/logo/1721658750/Sadvidya%20Semi-Residential.png" alt="College Logo">
+            <h1>Sadvidya Composite PU College</h1>
+            <p>Mysore, Karnataka</p>
+        </div>
+        <div class="search-box">
+            <input type="text" id="studentName" placeholder="Enter First Name or Last Name">
+            <button onclick="searchStudent()">Search</button>
+        </div>
+        <div id="results"></div>
+    </div>
+    <script>
+    function searchStudent() {
+        const name = document.getElementById('studentName').value;
+        fetch(`/search?name=${name}`)
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+
+                if (data.length > 0) {
+                    const studentData = data.reduce((acc, row) => {
+                        acc[row.subject] = row.grade;
+                        return acc;
+                    }, {});
+
+                    const subjects = [
+                        'Physics', 'Chemistry', 'Mathematics', 'Biology',
+                        'Computer Science', 'Kannada', 'Hindi', 'Sanskrit', 'Basic Mathematics', 'English'
+                    ];
+
+                    resultsDiv.innerHTML += `
+                        <div class="result-card">
+                            <h2>${data[0].firstname} ${data[0].lastname}</h2>
+                            <p>Email: ${data[0].email}</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${subjects.map(subject => `
+                                        <tr>
+                                            <td>${subject}</td>
+                                            <td>${studentData[subject] !== undefined ? studentData[subject] : 'Not Available'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = '<p class="no-results">No results found</p>';
+                }
+            });
+    }
+</script>
+
+    
+    
+</body>
+</html>
